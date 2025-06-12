@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "scheme": "acme",
+    "plugins": [
+      "expo-router"
+    ],
+    "name": "just-another-todo-app",
+    "slug": "just-another-todo-app"
+  }
+}
