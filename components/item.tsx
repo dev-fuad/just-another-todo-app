@@ -1,9 +1,11 @@
-import { StyleSheet, Text, View } from "react-native";
+import { memo } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { TodoItem } from "types";
 
 // Define the type for the item prop
 type ItemProps = {
   item: TodoItem;
+  onPress?: () => void;
 };
 
 const colors = ['#FF6347', '#4682B4', '#8A2BE2', '#2E8B57', '#D2691E', '#FF4500', '#1E90FF'];
@@ -20,15 +22,15 @@ const getRandomColor = () => {
   return lastUsedColor;
 };
 
-const Item = ({ item }: ItemProps) => {
+const Item = ({ item, onPress }: ItemProps) => {
   const color = getRandomColor();
   return (
-    <View style={styles.item}>
+    <Pressable style={styles.item} onPress={onPress}>
       <View style={[styles.bullet, { borderColor: color }, item.completed && { backgroundColor: color }]} />
       <Text style={[styles.title, { color }, item.completed && { textDecorationLine: 'line-through' }]}>
         {item.title}
       </Text>
-    </View>
+    </Pressable>
   );
 };
 
@@ -50,4 +52,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Item;
+export default memo(Item);

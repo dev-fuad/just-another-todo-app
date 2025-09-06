@@ -5,3 +5,5 @@ export type TodoItem = {
 };
 
 export type TodoList = TodoItem[];
+
+export enum FormState { view, add, edit, saving }

@@ -1,13 +1,5 @@
-import Item from "components/item";
-import { FlatList, StyleSheet, Text, View } from "react-native";
-import { TodoList } from "types";
-
-const TODO_LIST: TodoList = [
-  { id: "1", title: "Buy groceries", completed: true },
-  { id: "2", title: "Walk the dog", completed: false },
-  { id: "3", title: "Read a book", completed: false },
-  { id: "4", title: "Write some code", completed: false },
-];
+import List from "components/list";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function Page() {
   return (
@@ -19,13 +11,7 @@ export default function Page() {
         <Text style={styles.sectionHeader}>
           TODO List
         </Text>
-        <FlatList
-          data={TODO_LIST}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <Item item={item} />
-          )}
-        />
+        <List />
       </View>
     </View>
   );
