@@ -1,20 +1,22 @@
-# Expo Router Example
+# Just another TODO App
 
-Use [`expo-router`](https://docs.expo.dev/router/introduction/) to build native navigation using files in the `app/` directory.
+## 🚀 Tech Stack
 
-## 🚀 How to use
+- Expo
+- Expo Router + API Routes
+- Supabase
+- Tanstack
 
-```sh
-npx create-expo-app -e with-router
-```
+## Features
 
-## Deploy
-
-Deploy on all platforms with Expo Application Services (EAS).
-
-- Deploy the website: `npx eas-cli deploy` — [Learn more](https://docs.expo.dev/eas/hosting/get-started/)
-- Deploy on iOS and Android using: `npx eas-cli build` — [Learn more](https://expo.dev/eas)
+- List Todo items
+- Add a new todo (text only)
+- Mark a todo as completed
+- Edit a todo (text)
 
 ## 📝 Notes
 
 - [Expo Router: Docs](https://docs.expo.dev/router/introduction/)
+- [API Router: Docs](https://docs.expo.dev/router/reference/api-routes/)
+- [Supabase](https://supabase.com/docs/reference/javascript/introduction)
+- [Tanstack](https://tanstack.com/query/latest/docs/framework/react/overview)
