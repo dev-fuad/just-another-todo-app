@@ -1,10 +1,11 @@
 {
   "expo": {
     "scheme": "acme",
-    "plugins": [
-      "expo-router"
-    ],
+    "plugins": ["expo-router"],
     "name": "just-another-todo-app",
-    "slug": "just-another-todo-app"
+    "slug": "just-another-todo-app",
+    "web": {
+      "output": "server"
+    }
   }
 }

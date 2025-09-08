@@ -7,20 +7,14 @@
  * @format
  */
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FlatList } from "react-native";
+import { addTodo, getTodos } from "services/todos";
 import { FormState, TodoList } from "types";
 import AddNewButton from "./add-new-button";
 import CancelButton from "./cancel-button";
 import InputField from "./input-field";
 import Item from "./item";
-
-const TODO_LIST: TodoList = [
-  { id: "1", title: "Buy groceries", completed: true },
-  { id: "2", title: "Walk the dog", completed: false },
-  { id: "3", title: "Read a book", completed: false },
-  { id: "4", title: "Write some code", completed: false },
-];
 
 const ActionButton = ({ formState: [state, setState] }: { formState: [FormState, React.Dispatch<React.SetStateAction<FormState>>] }) => {
   if (state === FormState.view) {
@@ -42,9 +36,19 @@ const ActionButton = ({ formState: [state, setState] }: { formState: [FormState,
 
 export default function List() {
   const [formState, setFormState] = useState<FormState>(FormState.view);
-  const [list, setList] = useState<TodoList>(TODO_LIST);
+  const [list, setList] = useState<TodoList>([]);
+
+  useEffect(() => {
+    async function fetchTodos() {
+      const response = await getTodos();
+      setList(response.data);
+    }
+
+    fetchTodos();
+  }, []);
 
   const onSubmitAction = useCallback((text: string) => {
+    addTodo(text);
     setList((curr) => [...curr, { id: (curr.length + 1).toString(), title: text, completed: false }]);
 
     setFormState(FormState.view);
