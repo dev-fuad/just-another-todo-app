@@ -7,10 +7,11 @@
  * @format
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { useCallback, useState } from "react";
 import { FlatList } from "react-native";
-import { addTodo, getTodos } from "services/todos";
-import { FormState, TodoList } from "types";
+import { addTodo, getTodos, updateTodo } from "services/todos";
+import { FormState, TodoItem } from "types";
 import AddNewButton from "./add-new-button";
 import CancelButton from "./cancel-button";
 import InputField from "./input-field";
@@ -35,35 +36,41 @@ const ActionButton = ({ formState: [state, setState] }: { formState: [FormState,
 };
 
 export default function List() {
+  const queryClient = useQueryClient();
+  const { data } = useQuery({ queryKey: ['todos'], queryFn: getTodos });
   const [formState, setFormState] = useState<FormState>(FormState.view);
-  const [list, setList] = useState<TodoList>([]);
 
-  useEffect(() => {
-    async function fetchTodos() {
-      const response = await getTodos();
-      setList(response.data);
-    }
+  const addTodoMutation = useMutation({
+    mutationFn: addTodo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    },
+  });
 
-    fetchTodos();
-  }, []);
+  const updateTodoMutation = useMutation({
+    mutationFn: (todo: TodoItem) => updateTodo(todo.id, todo.title, todo.completed),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    },
+  });
 
   const onSubmitAction = useCallback((text: string) => {
-    addTodo(text);
-    setList((curr) => [...curr, { id: (curr.length + 1).toString(), title: text, completed: false }]);
+    addTodoMutation.mutate(text);
 
     setFormState(FormState.view);
-  }, []);
+  }, [addTodoMutation]);
 
   const onItemPress = useCallback((index: number) => {
-    setList((curr) => {
-      curr[index].completed = !curr[index].completed;
-      return [...curr];
+    updateTodoMutation.mutate({
+      id: data?.data[index].id ?? '',
+      title: data?.data[index].title ?? '',
+      completed: !(data?.data[index].completed ?? false),
     });
-  }, []);
+  }, [data, updateTodoMutation]);
 
   return (
     <FlatList
-      data={list}
+      data={data?.data ?? []}
       keyExtractor={(item) => item.id}
       ListHeaderComponent={<ActionButton formState={[formState, setFormState]} />}
       ListFooterComponent={
