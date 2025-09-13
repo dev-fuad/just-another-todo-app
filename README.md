@@ -7,6 +7,8 @@
 - Supabase
 - Tanstack
 
+![ScreenShot](./assets/just-another-todo-app.png)
+
 ## Features
 
 - List Todo items
