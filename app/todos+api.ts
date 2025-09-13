@@ -3,7 +3,8 @@ import { supabase } from "services/supabase";
 export async function GET() {
   const { data, error } = await supabase
     .from('todos')
-    .select();
+    .select()
+    .order('id');
 
   if (error) {
     console.error('Error fetching todos:', error);
