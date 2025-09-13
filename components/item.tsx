@@ -1,9 +1,10 @@
 import { memo } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, ViewProps } from "react-native";
 import { TodoItem } from "types";
 
 // Define the type for the item prop
 type ItemProps = {
+  style?: ViewProps['style'];
   item: TodoItem;
   onPress?: () => void;
 };
@@ -22,10 +23,10 @@ const getRandomColor = () => {
   return lastUsedColor;
 };
 
-const Item = ({ item, onPress }: ItemProps) => {
+const Item = ({ style, item, onPress }: ItemProps) => {
   const color = getRandomColor();
   return (
-    <Pressable style={styles.item} onPress={onPress}>
+    <Pressable style={[styles.item, style]} onPress={onPress}>
       <View style={[styles.bullet, { borderColor: color }, item.completed && { backgroundColor: color }]} />
       <Text style={[styles.title, { color }, item.completed && { textDecorationLine: 'line-through' }]}>
         {item.title}

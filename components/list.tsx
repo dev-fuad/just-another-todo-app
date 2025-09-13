@@ -10,14 +10,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useState } from "react";
 import { FlatList } from "react-native";
-import { addTodo, getTodos, updateTodo } from "services/todos";
-import { FormState, TodoItem } from "types";
+import { getTodos, updateTodo } from "services/todos";
+import { FormState, FormStateProps, TodoItem } from "types";
 import AddNewButton from "./add-new-button";
 import CancelButton from "./cancel-button";
-import InputField from "./input-field";
+import Footer from './footer';
 import Item from "./item";
 
-const ActionButton = ({ formState: [state, setState] }: { formState: [FormState, React.Dispatch<React.SetStateAction<FormState>>] }) => {
+const ActionButton = ({ formState: [state, setState] }: FormStateProps) => {
   if (state === FormState.view) {
     const addNewTodo = () => {
       setState(FormState.add);
@@ -38,27 +38,31 @@ const ActionButton = ({ formState: [state, setState] }: { formState: [FormState,
 export default function List() {
   const queryClient = useQueryClient();
   const { data } = useQuery({ queryKey: ['todos'], queryFn: getTodos });
-  const [formState, setFormState] = useState<FormState>(FormState.view);
-
-  const addTodoMutation = useMutation({
-    mutationFn: addTodo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] });
-    },
-  });
+  const formState = useState<FormState>(FormState.view);
 
   const updateTodoMutation = useMutation({
     mutationFn: (todo: TodoItem) => updateTodo(todo.id, todo.title, todo.completed),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    // Optimistic Update
+    // Updating on cache as mutation and text to update is on different components
+    onMutate: async (updatingTodo) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ['todos'] });
+
+      // Get the previous value
+      const previousTodos = queryClient.getQueryData<{ data: TodoItem[] }>(['todos', updatingTodo.id]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData<{ data: TodoItem[] }>(['todos'], old => ({
+        data: old?.data.map(todo =>
+          todo.id === updatingTodo.id ? { ...todo, ...updatingTodo } : todo
+        ) ?? [],
+      }));
+
+      // Return a context object with the updated value
+      return { previousTodos };
     },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
   });
-
-  const onSubmitAction = useCallback((text: string) => {
-    addTodoMutation.mutate(text);
-
-    setFormState(FormState.view);
-  }, [addTodoMutation]);
 
   const onItemPress = useCallback((index: number) => {
     updateTodoMutation.mutate({
@@ -72,10 +76,8 @@ export default function List() {
     <FlatList
       data={data?.data ?? []}
       keyExtractor={(item) => item.id}
-      ListHeaderComponent={<ActionButton formState={[formState, setFormState]} />}
-      ListFooterComponent={
-        formState === FormState.add ? <InputField submitAction={onSubmitAction} /> : null
-      }
+      ListHeaderComponent={<ActionButton formState={formState} />}
+      ListFooterComponent={<Footer formState={formState} />}
       renderItem={({ item, index }) => (
         <Item item={item} onPress={() => onItemPress(index)} />
       )}

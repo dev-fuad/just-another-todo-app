@@ -7,3 +7,7 @@ export type TodoItem = {
 export type TodoList = TodoItem[];
 
 export enum FormState { view, add, edit, saving }
+
+export type FormStateProps = {
+  formState: [FormState, React.Dispatch<React.SetStateAction<FormState>>],
+};
